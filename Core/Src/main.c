@@ -65,6 +65,7 @@
 
 uint16_t adc_buffer[ADC_BUFFER_LENGTH];
 uint8_t DMA_finished = 0;
+int16_t counter = 0;
 
 /* USER CODE END PV */
 
@@ -109,21 +110,21 @@ int main(void)
   MX_GPIO_Init();
   MX_DMA_Init();
   MX_USART2_UART_Init();
-  MX_I2C1_Init();
+ // MX_I2C1_Init();
   MX_ADC1_Init();
   MX_DAC1_Init();
   /* USER CODE BEGIN 2 */
   //HAL_TIM_Encoder_Start(&htim1, TIM_CHANNEL_ALL);
   printf("oh, un gens\r\n");
 
-  uint8_t res = SSD1306_Init();
+ /* uint8_t res = SSD1306_Init();
   printf("OLED init: %d\n", res);
 
   SSD1306_GotoXY (10,10); // goto 10, 10
   SSD1306_Puts ("HELLO", &Font_11x18, 1); // print Hello
   SSD1306_GotoXY (10, 30);
   SSD1306_Puts ("WORLD !!", &Font_11x18, 1);
-  SSD1306_UpdateScreen(); // update screen
+  SSD1306_UpdateScreen(); // update screen*/
 
 
   HAL_ADC_Start_DMA(&hadc1 , (uint32_t *) adc_buffer, ADC_BUFFER_LENGTH);
@@ -228,11 +229,22 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 }
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
+	//Pour le switch
 	if(GPIO_Pin == KNOB_SWITCH_Pin){
 		//On a appuyé sur le bouton
 		__NOP();
 	}else{
 		__NOP();
+	}
+	//Pour gérer la roue codeuse
+	if(GPIO_Pin == GPIO_PIN_1){
+		//Gestion de l'interruption
+		if(HAL_GPIO_ReadPin(KNOB_CH_A_GPIO_Port, KNOB_CH_A_Pin)){
+			counter++;
+		}else{
+			counter--;
+		}
+
 	}
 }
 
