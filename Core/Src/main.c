@@ -23,6 +23,7 @@
 #include "dac.h"
 #include "dma.h"
 #include "i2c.h"
+#include "tim.h"
 #include "usart.h"
 #include "gpio.h"
 
@@ -40,11 +41,16 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define ADC_CHANNELS 6
-#define ADC_BUFFER_LENGTH 512*ADC_CHANNELS
+#define SAMPLES_LENGTH			512
+#define ADC_CHANNELS			6
+#define ADC_BUFFER_SIZE			SAMPLES_LENGTH*ADC_CHANNELS
+#define ADC_BUFFER_HALF_SIZE	(SAMPLES_LENGTH/2)*ADC_CHANNELS
+#define DAC_BUFFER_1_SIZE		SAMPLES_LENGTH
+#define DAC_BUFFER_1_HALF_SIZE	SAMPLES_LENGTH/2
+#define DAC_BUFFER_2_SIZE		SAMPLES_LENGTH
+#define DAC_BUFFER_2_HALF_SIZE	SAMPLES_LENGTH/2
 
-// adc_buffer[6n] -> ADC_RANK_1
-// adc_buffer[6n+1] -> ADC_RANK_2
+
 /*	CV_0 -> PA0 -> CHANNEL_5 -> RANK_2
  * 	CV_1 -> PA1 -> CHANNEL_6 -> RANK_3
  *	CV_2 -> PA6 -> CHANNEL_11 -> RANK_4
@@ -52,6 +58,8 @@
  *	IN_L -> PA7 -> CHANNEL_12 -> RANK_5
  *	IN_R -> PA3 -> CHANNEL_8 -> RANK_1
  * */
+// adc_buffer[6n] -> ADC_RANK_1
+// adc_buffer[6n+1] -> ADC_RANK_2
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -63,9 +71,15 @@
 
 /* USER CODE BEGIN PV */
 
-uint16_t adc_buffer[ADC_BUFFER_LENGTH];
-uint8_t DMA_finished = 0;
+uint16_t adc_buffer[ADC_BUFFER_SIZE];
+uint16_t dac_buffer_1[DAC_BUFFER_1_SIZE];
+uint16_t dac_buffer_2[DAC_BUFFER_2_SIZE];
+uint8_t start_dsp = 0;
 int16_t counter = 0;
+
+static volatile uint16_t* in_buffer_ptr;
+static volatile uint16_t* out_buffer_1_ptr;
+static volatile uint16_t* out_buffer_2_ptr;
 
 /* USER CODE END PV */
 
@@ -77,6 +91,20 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+void processDSP(){
+	__NOP();
+	//For DAC 1 (from IN_L)
+	for(uint16_t i=0; i!= SAMPLES_LENGTH; i++){
+		out_buffer_1_ptr[i] = in_buffer_ptr[6*i+5];
+	}
+
+	//For DAC 2 (from IN_R)
+	for(uint16_t i=0; i!= SAMPLES_LENGTH; i++){
+		out_buffer_2_ptr[i] = in_buffer_ptr[6*i+1];
+	}
+}
+
 
 /* USER CODE END 0 */
 
@@ -110,11 +138,17 @@ int main(void)
   MX_GPIO_Init();
   MX_DMA_Init();
   MX_USART2_UART_Init();
- // MX_I2C1_Init();
+  MX_I2C1_Init();
   MX_ADC1_Init();
   MX_DAC1_Init();
+  MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
-  //HAL_TIM_Encoder_Start(&htim1, TIM_CHANNEL_ALL);
+
+  HAL_TIM_Base_Start(&htim6);
+  HAL_ADC_Start_DMA(&hadc1 , (uint32_t *) adc_buffer, ADC_BUFFER_SIZE);
+  HAL_Delay(1);
+  HAL_DAC_Start_DMA(&hdac1,DAC_CHANNEL_1 , (uint32_t *) dac_buffer_1, DAC_BUFFER_1_SIZE, DAC_ALIGN_12B_R);
+  HAL_DAC_Start_DMA(&hdac1,DAC_CHANNEL_2 , (uint32_t *) dac_buffer_2, DAC_BUFFER_2_SIZE, DAC_ALIGN_12B_R);
   printf("oh, un gens\r\n");
 
  /* uint8_t res = SSD1306_Init();
@@ -127,7 +161,7 @@ int main(void)
   SSD1306_UpdateScreen(); // update screen*/
 
 
-  HAL_ADC_Start_DMA(&hadc1 , (uint32_t *) adc_buffer, ADC_BUFFER_LENGTH);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -138,12 +172,16 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 	  //printf("%ld %ld %ld\r\n", value[0],value[1],value[2]);
-	  if(DMA_finished){
-		  DMA_finished = 0;
+
 		  /*for (int i=0; i!= 512;i++){
 			  printf("%u\r\n", adc_buffer[6*i+1]);
 		  }*/
+	  if(start_dsp){
+		  start_dsp = 0;
+		  processDSP();
 	  }
+	  __NOP();
+
   }
   /* USER CODE END 3 */
 }
@@ -223,10 +261,24 @@ void SystemClock_Config(void)
 
 /* USER CODE BEGIN 4 */
 
+void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef* hadc){
+	__NOP();
+	//First half ot the buffer is full
+	in_buffer_ptr =  adc_buffer;
+	out_buffer_1_ptr = &dac_buffer_1[DAC_BUFFER_1_HALF_SIZE];
+	out_buffer_2_ptr = &dac_buffer_2[DAC_BUFFER_2_HALF_SIZE];
+	start_dsp = 1;
+}
+
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 	__NOP();
-	DMA_finished = 1;
+	//The buffer is now full
+	in_buffer_ptr = &adc_buffer[ADC_BUFFER_HALF_SIZE];
+	out_buffer_1_ptr = dac_buffer_1;
+	out_buffer_2_ptr = dac_buffer_2;
+	start_dsp = 1;
 }
+
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 	//Pour le switch
@@ -244,7 +296,6 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 		}else{
 			counter--;
 		}
-
 	}
 }
 
