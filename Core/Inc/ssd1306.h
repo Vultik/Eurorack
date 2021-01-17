@@ -1,11 +1,5 @@
 /**
- * original author:  Tilen Majerle<tilen@majerle.eu>
- * modification for STM32f10x: Alexander Lutsai<s.lyra@ya.ru>
-
    ----------------------------------------------------------------------
-   	Copyright (C) Alexander Lutsai, 2016
-    Copyright (C) Tilen Majerle, 2015
-    
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
@@ -55,9 +49,8 @@ SDA        |PB7          |Serial data line
 
 /* I2C address */
 #ifndef SSD1306_I2C_ADDR
-#define SSD1306_I2C_ADDR         0x3C << 1
-
-	//il faut décaler l'adresse d'un bit vers la gauche
+#define SSD1306_I2C_ADDR 0x3C<<1
+//Decalage de 1 bit parce que la carte utilise une adresse sur 7 bits
 //#define SSD1306_I2C_ADDR       0x7A
 #endif
 
@@ -68,13 +61,14 @@ SDA        |PB7          |Serial data line
 #endif
 /* SSD1306 LCD height in pixels */
 #ifndef SSD1306_HEIGHT
-#define SSD1306_HEIGHT           32
+#define SSD1306_HEIGHT           64
 #endif
 
 /**
  * @brief  SSD1306 color enumeration
  */
-typedef enum {
+typedef enum
+{
 	SSD1306_COLOR_BLACK = 0x00, /*!< Black color, no pixel */
 	SSD1306_COLOR_WHITE = 0x01  /*!< Pixel is set. Color depends on LCD */
 } SSD1306_COLOR_t;
@@ -163,7 +157,6 @@ char SSD1306_Puts(char* str, FontDef_t* Font, SSD1306_COLOR_t color);
  * @retval None
  */
 void SSD1306_DrawLine(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, SSD1306_COLOR_t c);
-
 /**
  * @brief  Draws rectangle on LCD
  * @note   @ref SSD1306_UpdateScreen() must be called after that in order to see updated LCD screen
@@ -175,7 +168,6 @@ void SSD1306_DrawLine(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, SSD130
  * @retval None
  */
 void SSD1306_DrawRectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h, SSD1306_COLOR_t c);
-
 /**
  * @brief  Draws filled rectangle on LCD
  * @note   @ref SSD1306_UpdateScreen() must be called after that in order to see updated LCD screen
@@ -202,29 +194,8 @@ void SSD1306_DrawFilledRectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h,
  */
 void SSD1306_DrawTriangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t x3, uint16_t y3, SSD1306_COLOR_t color);
 
-/**
- * @brief  Draws circle to STM buffer
- * @note   @ref SSD1306_UpdateScreen() must be called after that in order to see updated LCD screen
- * @param  x: X location for center of circle. Valid input is 0 to SSD1306_WIDTH - 1
- * @param  y: Y location for center of circle. Valid input is 0 to SSD1306_HEIGHT - 1
- * @param  r: Circle radius in units of pixels
- * @param  c: Color to be used. This parameter can be a value of @ref SSD1306_COLOR_t enumeration
- * @retval None
- */
-void SSD1306_DrawCircle(int16_t x0, int16_t y0, int16_t r, SSD1306_COLOR_t c);
-
-/**
- * @brief  Draws filled circle to STM buffer
- * @note   @ref SSD1306_UpdateScreen() must be called after that in order to see updated LCD screen
- * @param  x: X location for center of circle. Valid input is 0 to SSD1306_WIDTH - 1
- * @param  y: Y location for center of circle. Valid input is 0 to SSD1306_HEIGHT - 1
- * @param  r: Circle radius in units of pixels
- * @param  c: Color to be used. This parameter can be a value of @ref SSD1306_COLOR_t enumeration
- * @retval None
- */
-void SSD1306_DrawFilledCircle(int16_t x0, int16_t y0, int16_t r, SSD1306_COLOR_t c);
-
-
+void SSD1306_DrawFilledTriangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t x3, uint16_t y3, SSD1306_COLOR_t color);
+void SSD1306_DrawFleches();
 
 #ifndef ssd1306_I2C_TIMEOUT
 #define ssd1306_I2C_TIMEOUT					20000
@@ -272,34 +243,20 @@ void ssd1306_I2C_WriteMulti(uint8_t address, uint8_t reg, uint8_t *data, uint16_
 void SSD1306_DrawBitmap(int16_t x, int16_t y, const unsigned char* bitmap, int16_t w, int16_t h, uint16_t color);
 
 // scroll the screen for fixed rows
-
 void SSD1306_ScrollRight(uint8_t start_row, uint8_t end_row);
-
 
 void SSD1306_ScrollLeft(uint8_t start_row, uint8_t end_row);
 
-
 void SSD1306_Scrolldiagright(uint8_t start_row, uint8_t end_row);
-
 
 void SSD1306_Scrolldiagleft(uint8_t start_row, uint8_t end_row);
 
-
-
 void SSD1306_Stopscroll(void);
 
-
 // inverts the display i = 1->inverted, i = 0->normal
-
 void SSD1306_InvertDisplay (int i);
 
-
-
-
-
-
 // clear the display
-
 void SSD1306_Clear (void);
 
 

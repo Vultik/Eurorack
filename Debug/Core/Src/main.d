@@ -37,7 +37,7 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  ../Core/Inc/adc.h ../Core/Inc/main.h ../Core/Inc/dac.h ../Core/Inc/dma.h \
  ../Core/Inc/i2c.h ../Core/Inc/tim.h ../Core/Inc/usart.h \
  ../Core/Inc/gpio.h ../Core/Inc/ssd1306.h ../Core/Inc/fonts.h \
- ../Core/Inc/fonts.h ../Core/Inc/test.h
+ ../Core/Inc/fonts.h ../Core/Inc/wave_generator.h
 
 ../Core/Inc/main.h:
 
@@ -133,4 +133,4 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
 
 ../Core/Inc/fonts.h:
 
-../Core/Inc/test.h:
+../Core/Inc/wave_generator.h:
