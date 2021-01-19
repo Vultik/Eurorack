@@ -207,13 +207,20 @@ void SSD1306_UpdateScreen(void) {
 	uint8_t m;
 	uint8_t start_frame[] = {0x00,0xB0,0x00,0x00,0x00,0x10};
 	
-	for (m = 0; m < 8; m++) {
+	/*for (m = 0; m < 8; m++) {
 		start_frame[1] = 0xB0 + m;
 		while (HAL_I2C_GetState(&hi2c1) != HAL_I2C_STATE_READY){}
-		HAL_I2C_Master_Transmit_DMA(&hi2c1, SSD1306_I2C_ADDR, start_frame, 6);
+		HAL_I2C_Master_Transmit(&hi2c1, SSD1306_I2C_ADDR, start_frame, 6,10);
 		ssd1306_I2C_WriteMulti(SSD1306_I2C_ADDR, 0x40, &SSD1306_Buffer[SSD1306_WIDTH * m], SSD1306_WIDTH);
 
-	}
+	}*/
+	for (m = 0; m < 8; m++) {
+			SSD1306_WRITECOMMAND(0xB0 + m);
+			SSD1306_WRITECOMMAND(0x00);
+			SSD1306_WRITECOMMAND(0x10);
+			/* Write multi data */
+			ssd1306_I2C_WriteMulti(SSD1306_I2C_ADDR, 0x40, &SSD1306_Buffer[SSD1306_WIDTH * m], SSD1306_WIDTH);
+		}
 	/*HAL_I2C_Master_Transmit_DMA(&hi2c1, SSD1306_I2C_ADDR, start_frame, 6);
 	ssd1306_I2C_WriteMulti(SSD1306_I2C_ADDR, 0x40, &SSD1306_Buffer[0], 2*SSD1306_WIDTH);*/
 
@@ -587,7 +594,7 @@ void ssd1306_I2C_WriteMulti(uint8_t address, uint8_t reg, uint8_t* data, uint16_
 	}
 
 	while (HAL_I2C_GetState(&hi2c1) != HAL_I2C_STATE_READY){}
-	HAL_I2C_Master_Transmit_DMA(&hi2c1, address, dt, count+1);
+	HAL_I2C_Master_Transmit(&hi2c1, address, dt, count+1,10);
 }
 
 void ssd1306_I2C_Write(uint8_t address, uint8_t reg, uint8_t data)
@@ -596,5 +603,5 @@ void ssd1306_I2C_Write(uint8_t address, uint8_t reg, uint8_t data)
 	dt[0] = reg;
 	dt[1] = data;
 	while (HAL_I2C_GetState(&hi2c1) != HAL_I2C_STATE_READY){}
-	HAL_I2C_Master_Transmit_DMA(&hi2c1, address, dt, 2);
+	HAL_I2C_Master_Transmit(&hi2c1, address, dt, 2,10);
 }

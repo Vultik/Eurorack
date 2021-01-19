@@ -1,0 +1,14 @@
+menu.c:31:9:init_menu	16	static
+menu.c:40:6:verifValue	4	static
+menu.c:45:6:set_home_menu	8	static
+menu.c:49:6:set_menu_SWITCH_EVENT	8	static
+menu.c:71:6:set_menu_KNOB_EVENT_HIGH	8	static
+menu.c:116:6:set_menu_KNOB_EVENT_LOW	8	static
+menu.c:161:6:afficherMenu1	40	static
+menu.c:180:6:afficherMenu2	40	static
+menu.c:200:6:afficherMenu3	48	static
+menu.c:233:6:afficherMenuPitch	40	static
+menu.c:253:6:afficherMenuX	40	static
+menu.c:273:6:afficherMenuXbis	40	static
+menu.c:293:6:afficherMenuY	40	static
+menu.c:314:6:affichageMenu	16	static
