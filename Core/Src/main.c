@@ -56,7 +56,7 @@
 uint8_t note_index = 0;
 uint8_t start_dsp = 0;
 
-float x = 1;
+float x = 0;
 float y = 0;
 
 

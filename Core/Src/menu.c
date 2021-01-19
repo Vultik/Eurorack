@@ -164,7 +164,7 @@ void afficherMenu1(){
 	char varPitch[10];
 	sprintf(varPitch, "%s", note_name[note_index]);
 
-	SSD1306_Clear();
+	SSD1306_Fill(0);
 	SSD1306_GotoXY(5,5);
 	SSD1306_Puts("PITCH", &Font_11x18, 0);
 	SSD1306_GotoXY(80,5);
@@ -184,7 +184,7 @@ void afficherMenu2()
 	char varPitch[10];
 	sprintf(varPitch, "%s", note_name[note_index]);
 
-	SSD1306_Clear();
+	SSD1306_Fill(0);
 
 	SSD1306_GotoXY(5,5);
 	SSD1306_Puts("PITCH", &Font_11x18, 1);
@@ -203,7 +203,7 @@ void afficherMenu3(int test)
 	sprintf(varX, "%f", x);
 	char varY[10];
 	sprintf(varY, "%f", y);
-	SSD1306_Clear();
+	SSD1306_Fill(0);
 	if(test == 0)
 	{
 		SSD1306_GotoXY(5,5);
@@ -236,7 +236,7 @@ void afficherMenuPitch()
 	sprintf(varX, "%f", x);
 	char varPitch[10];
 	sprintf(varPitch, "%s", note_name[note_index]);
-	SSD1306_Clear();
+	SSD1306_Fill(0);
 
 	SSD1306_GotoXY(5,5);
 	SSD1306_Puts("PITCH", &Font_11x18, 1);
@@ -256,7 +256,7 @@ void afficherMenuX()
 	sprintf(varX, "%f", x);
 	char varPitch[10];
 	sprintf(varPitch, "%s", note_name[note_index]);
-	SSD1306_Clear();
+	SSD1306_Fill(0);
 
 	SSD1306_GotoXY(5,5);
 	SSD1306_Puts("PITCH", &Font_11x18, 1);
@@ -276,7 +276,7 @@ void afficherMenuXbis()
 	sprintf(varX, "%f", x);
 	char varY[10];
 	sprintf(varY, "%f", y);
-	SSD1306_Clear();
+	SSD1306_Fill(0);
 
 	SSD1306_GotoXY(5,5);
 	SSD1306_Puts("X", &Font_11x18, 1);
@@ -296,7 +296,7 @@ void afficherMenuY()
 	sprintf(varX, "%f", x);
 	char varY[10];
 	sprintf(varY, "%f", y);
-	SSD1306_Clear();
+	SSD1306_Fill(0);
 
 	SSD1306_GotoXY(5,5);
 	SSD1306_Puts("X", &Font_11x18, 1);

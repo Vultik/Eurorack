@@ -213,16 +213,17 @@ void SSD1306_UpdateScreen(void) {
 		HAL_I2C_Master_Transmit(&hi2c1, SSD1306_I2C_ADDR, start_frame, 6,10);
 		ssd1306_I2C_WriteMulti(SSD1306_I2C_ADDR, 0x40, &SSD1306_Buffer[SSD1306_WIDTH * m], SSD1306_WIDTH);
 
-	}*/
-	for (m = 0; m < 8; m++) {
-			SSD1306_WRITECOMMAND(0xB0 + m);
-			SSD1306_WRITECOMMAND(0x00);
-			SSD1306_WRITECOMMAND(0x10);
-			/* Write multi data */
-			ssd1306_I2C_WriteMulti(SSD1306_I2C_ADDR, 0x40, &SSD1306_Buffer[SSD1306_WIDTH * m], SSD1306_WIDTH);
-		}
-	/*HAL_I2C_Master_Transmit_DMA(&hi2c1, SSD1306_I2C_ADDR, start_frame, 6);
+	}
+	HAL_I2C_Master_Transmit_DMA(&hi2c1, SSD1306_I2C_ADDR, start_frame, 6);
 	ssd1306_I2C_WriteMulti(SSD1306_I2C_ADDR, 0x40, &SSD1306_Buffer[0], 2*SSD1306_WIDTH);*/
+	for (m = 0; m < 8; m++) {
+		SSD1306_WRITECOMMAND(0xB0 + m);
+		SSD1306_WRITECOMMAND(0x00);
+		SSD1306_WRITECOMMAND(0x10);
+
+		/* Write multi data */
+		ssd1306_I2C_WriteMulti(SSD1306_I2C_ADDR, 0x40, &SSD1306_Buffer[SSD1306_WIDTH * m], SSD1306_WIDTH);
+	}
 
 }
 
