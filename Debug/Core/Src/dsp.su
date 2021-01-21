@@ -1,6 +1,7 @@
-dsp.c:144:7:get_note_frequency	16	static
-dsp.c:149:6:changePitch	24	static
-dsp.c:156:6:dsp_init	16	static
-dsp.c:164:6:processDSP	24	static,ignoring_inline_asm
-dsp.c:228:6:HAL_ADC_ConvHalfCpltCallback	16	static,ignoring_inline_asm
-dsp.c:241:6:HAL_ADC_ConvCpltCallback	16	static,ignoring_inline_asm
+dsp.c:145:7:get_note_frequency	16	static
+dsp.c:150:6:changePitch	24	static
+dsp.c:158:6:change_direct_frequency	16	static
+dsp.c:163:6:dsp_init	16	static
+dsp.c:171:6:processDSP	48	static,ignoring_inline_asm
+dsp.c:240:6:HAL_ADC_ConvHalfCpltCallback	16	static,ignoring_inline_asm
+dsp.c:253:6:HAL_ADC_ConvCpltCallback	16	static,ignoring_inline_asm

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "dsp.h"
 #include "tim.h"
+#include "math.h"
 
 #define SAMPLES_LENGTH			200
 #define ADC_CHANNELS			6
@@ -34,21 +35,21 @@ uint16_t sin_wave[200] = {
 };
 
 uint16_t triangle_wave[200] = {
-	2067,2087,2107,2127,2147,2166,2186,2206,2226,2246,2265,2285,2305,2325
-	,2345,2364,2384,2404,2424,2444,2463,2483,2503,2523,2543,2562,2582,2602
-	,2622,2642,2661,2681,2701,2721,2741,2760,2780,2800,2820,2840,2859,2879
-	,2899,2919,2939,2958,2978,2998,3018,3038,3057,3077,3097,3117,3137,3156
-	,3176,3196,3216,3236,3255,3275,3295,3315,3335,3354,3374,3394,3414,3434
-	,3453,3473,3493,3513,3533,3552,3572,3592,3612,3632,3651,3671,3691,3711
-	,3731,3750,3770,3790,3810,3830,3849,3869,3889,3909,3929,3948,3968,3988
-	,4008,4028,4048,4028,4008,3988,3968,3948,3929,3909,3889,3869,3849,3830
-	,3810,3790,3770,3750,3731,3711,3691,3671,3651,3632,3612,3592,3572,3552
-	,3533,3513,3493,3473,3453,3434,3414,3394,3374,3354,3335,3315,3295,3275
-	,3255,3236,3216,3196,3176,3156,3137,3117,3097,3077,3057,3038,3018,2998
-	,2978,2958,2939,2919,2899,2879,2859,2840,2820,2800,2780,2760,2741,2721
-	,2701,2681,2661,2642,2622,2602,2582,2562,2543,2523,2503,2483,2463,2444
-	,2424,2404,2384,2364,2345,2325,2305,2285,2265,2246,2226,2206,2186,2166
-	,2147,2127,2107,2087
+	39,79,118,158,198,237,277,316,356,396,435,475,514,554
+	,594,633,673,712,752,792,831,871,910,950,990,1029,1069,1108
+	,1148,1188,1227,1267,1306,1346,1386,1425,1465,1504,1544,1584,1623,1663
+	,1702,1742,1782,1821,1861,1900,1940,1980,2019,2059,2099,2138,2178,2217
+	,2257,2297,2336,2376,2415,2455,2495,2534,2574,2613,2653,2693,2732,2772
+	,2811,2851,2891,2930,2970,3009,3049,3089,3128,3168,3207,3247,3287,3326
+	,3366,3405,3445,3485,3524,3564,3603,3643,3683,3722,3762,3801,3841,3881
+	,3920,3960,4000,3960,3920,3881,3841,3801,3762,3722,3683,3643,3603,3564
+	,3524,3485,3445,3405,3366,3326,3287,3247,3207,3168,3128,3089,3049,3009
+	,2970,2930,2891,2851,2811,2772,2732,2693,2653,2613,2574,2534,2495,2455
+	,2415,2376,2336,2297,2257,2217,2178,2138,2099,2059,2019,1980,1940,1900
+	,1861,1821,1782,1742,1702,1663,1623,1584,1544,1504,1465,1425,1386,1346
+	,1306,1267,1227,1188,1148,1108,1069,1029,990,950,910,871,831,792
+	,752,712,673,633,594,554,514,475,435,396,356,316,277,237
+	,198,158,118,79
 };
 
 uint16_t square_wave[200] = {
@@ -148,9 +149,15 @@ float get_note_frequency(uint8_t desired_note_index){
 
 void changePitch(uint8_t desired_note_index){
 	float desired_frequency = get_note_frequency(desired_note_index) * num_ech;
-	//Calcul du Counter Period de TIM6
+	//Calcul du Counter Period de TIM2
 
 	TIM2->ARR = (int)(timer_clock/desired_frequency -1);
+	TIM2->CNT = 0;
+}
+
+void change_direct_frequency(float desired_frequency){
+	TIM2->ARR = (int)(timer_clock/desired_frequency -1);
+	TIM2->CNT = 0;
 }
 
 void dsp_init(){
@@ -165,9 +172,9 @@ void processDSP(){
 	__NOP();
 
 	//Get pitch from CV0 & CV1 input
-	int16_t CV0_average =0;
-	int16_t CV1_average =0;
-	int16_t CV2_average =0;
+	float CV0_average =0;
+	float CV1_average =0;
+	float CV2_average =0;
 	for(uint8_t i=0;i!=10;i++){
 		CV0_average +=adc_buffer[6*i+1];
 		CV1_average +=adc_buffer[6*i+2];
@@ -175,43 +182,48 @@ void processDSP(){
 	}
 
 	//Get average
-	CV0_average = CV0_average/10;
-	CV1_average = CV1_average/10;
-	CV2_average = CV2_average/10;
+	CV0_average = 2048-CV0_average/10;
+	CV1_average = 2048-CV1_average/10;
+	CV2_average = 2048-CV2_average/10;
 
 	//Convert from 0->3.3V (0->4096) to -10 +10 (-2048->2048)input
-	CV0_average = CV0_average - 2048;
-	CV1_average = CV1_average - 2048;
-	CV2_average = CV2_average - 2048;
-	//CVx value between -10 to 10 (integer)
-	CV0_average = CV0_average *(10/2048);
-	CV1_average = CV1_average *(10/2048);
-	CV2_average = CV2_average *(10/2048);
+	/*CV0_average = CV0_average;
+	CV1_average = CV1_average;
+	CV2_average = CV2_average;*/
+
+	//CVx value between -10 to 10 (float)
+	CV0_average = CV0_average *(10.0/1100.0);
+	CV1_average = CV1_average *(10.0/2048.0);
+	CV2_average = CV2_average *(10.0/2048.0);
 
 	//Change pitch
-	note_index = note_index + 12*CV0_average;
-	if(note_index < 0){
+	float cv_frequency = get_note_frequency(note_index)*pow(2,CV0_average);
+	changePitch(note_index);
+
+	/*if(note_index < 0){
 		note_index = 0;
 	}
 	if(note_index >95){
 		note_index = 95;
-	}
-	changePitch(note_index);
+	}*/
 
+	change_direct_frequency(200*cv_frequency);
 	//Change x and y
-	x= x + CV1_average/10;
-	y= y + CV2_average/10;
+	float x_cv = CV1_average/10.0;
+	float y_cv = CV2_average/10.0;
+	//x= x + x_cv;
+	//y= y + y_cv;
 
-	if(x <0){x =0;}
-	if(x >1){x =1;}
-	if(y <0){y =0;}
-	if(y >1){y =1;}
+	if(x_cv <0){x_cv =0;}
+	if(x_cv >1){x_cv =1;}
+	if(y_cv <0){y_cv =0;}
+	if(y_cv >1){y_cv =1;}
 
 	//Get amplitude of wave
-	sin_amplitude = (1-x)*(1-y);
-	triangle_amplitude = x*(1-y);
-	square_amplitude = (1-x)*y;
-	saw_amplitude = x*y;
+	sin_amplitude = (1-(x+x_cv))*(1-(y+y_cv));
+	triangle_amplitude = (x+x_cv)*(1-(y+y_cv));
+	square_amplitude = (1-(x+x_cv))*(y+y_cv);
+	saw_amplitude = (x+x_cv)*(y+y_cv);
 
 	//For DAC 2 (OUT_1)
 	for(uint16_t i=0; i!= SAMPLES_LENGTH/2; i++){

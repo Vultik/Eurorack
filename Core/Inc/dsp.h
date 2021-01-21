@@ -11,6 +11,7 @@ void changePitch(uint8_t);
 float get_note_frequency(uint8_t);
 void processDSP();
 void dsp_init();
+void change_direct_frequency(float desired_frequency);
 
 
 

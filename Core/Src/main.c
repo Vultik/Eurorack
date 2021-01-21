@@ -221,7 +221,6 @@ void SystemClock_Config(void)
 /* USER CODE BEGIN 4 */
 
 
-
 void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef* hi2c){
 	__NOP();
 }
